@@ -1,6 +1,6 @@
 # Snowflake Gen2 Warehouse Analysis — Statistical Framework
 
-A SQL-based monitoring framework for evaluating Snowflake Generation 2 (Gen2) warehouse migrations using rigorous statistical methods. Produces a defensible, data-driven assessment of cost, performance, and reliability.
+A SQL-based monitoring framework for evaluating Snowflake Generation 2 (Gen2) warehouse migrations using statistical methods. Produces a defensible, data-driven assessment of cost, performance, and reliability.
 
 ## The Problem
 
@@ -34,13 +34,32 @@ The final view (`VW_GEN2_MIGRATION_DECISION`) synthesizes all three into a singl
 
 ## Quick Start
 
+### 0. Switch warehouse(s) to Gen2
+
+Before you can measure anything, your target warehouses need to be running on Gen2. Switch them as close as possible to the start of a UTC day — this gives you clean daily boundaries for the Gen1/Gen2 comparison.
+
+Switching between generations is straightforward in Snowflake:
+
+```sql
+-- Switch a single warehouse to Gen2
+ALTER WAREHOUSE my_warehouse SET WAREHOUSE_TYPE = 'STANDARD' GENERATION = '2';
+
+-- Switch back to Gen1 if needed
+ALTER WAREHOUSE my_warehouse SET WAREHOUSE_TYPE = 'STANDARD' GENERATION = '1';
+```
+
+See [Snowflake documentation: Gen2 warehouse examples](https://docs.snowflake.com/en/user-guide/warehouses-gen2#examples-using-generation-clause-recommended-approach) for the recommended approach.
+
+Let the warehouse(s) run on Gen2 for at least 14 days (30+ days preferred) before running the analysis. The framework needs sufficient Gen2 data to produce reliable confidence intervals.
+
 ### 1. Set Configuration
 
 ```sql
-SET cutover_date = '2025-05-01';      -- First full UTC day of Gen2
+SET cutover_date = '2025-05-01';      -- First full UTC day of Gen2 (the day AFTER you switched)
 SET warehouse_like = 'ANALYTICS_%';   -- Your warehouse name pattern
-SET LOOKBACK_DAYS = 30;               -- Gen1 baseline window
-SET LOOKAHEAD_DAYS = 30;              -- Gen2 observation window
+SET LOOKBACK_DAYS = 30;               -- Gen1 baseline window: 30 days
+SET LOOKAHEAD_DAYS = 29;              -- Gen2 observation window; 1 day (Cutover date) + 29 days
+
 
 USE ROLE sysadmin;
 USE DATABASE my_database;

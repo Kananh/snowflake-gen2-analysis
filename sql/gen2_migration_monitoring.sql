@@ -34,7 +34,7 @@
 
 SET cutover_date = '2026-05-01';  -- NOTE: Set this to the first full UTC day after Gen2 was enabled.
 SET LOOKBACK_DAYS = 30;   -- GEN1 window: min 30 days for reliable variance estimation (4+ per DOW)
-SET LOOKAHEAD_DAYS = 30;  -- Gen2 window: grows as you collect more data
+SET LOOKAHEAD_DAYS = 29;  -- # 1 day (Cutover date) + 29 days
 SET warehouse_like = 'ANALYTICS_%';
 -- SET warehouse_like = 'ANALYTICS_PROD_ETL_WH';
 -- NOTE: No credit multiplier needed. WAREHOUSE_METERING_HISTORY already reports
